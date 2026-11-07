@@ -13,11 +13,7 @@ A high-performance, native Rust mod for **Horizon Minecraft** (the open-source M
 
 ## ✨ Features
 
-- **Accurate Numeric Durability:** Displays `remaining / max (percent%)`, e.g. `1561 / 1561 (100%)`.
-- **Dynamic Color Indicators:**
-  - 🟢 **Green** ($\ge 70\%$) — Pristine condition
-  - 🟡 **Yellow** ($\ge 30\%$ and $< 70\%$) — Moderately damaged
-  - 🔴 **Red** ($< 30\%$) — Critically damaged
+- **Accurate Numeric Durability:** Displays `remaining / max (percent%)`, e.g. `1561 / 1561 (100%)`, rendered in clean text matching vanilla Minecraft tooltips.
 - **Universal Internationalization (120+ Languages):**
   - Dynamically extracts localized labels via Minecraft's built-in `item.durability` translation key.
   - Full support for European languages (English `Durability`, Russian `Прочность`, German `Haltbarkeit`, Spanish `Durabilidad`, French `Durabilité`, etc.).

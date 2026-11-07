@@ -61,7 +61,7 @@ def package(mod_dir: Path, output_dir: Path) -> Path:
     for p in sorted(bundle_dir.rglob("*")):
         if p.is_file() and p.suffix in (".rs", ".toml"):
             rel_name = f"mixins/{mod_id}/{p.relative_to(bundle_dir).as_posix()}"
-            files[rel_name] = p.read_bytes()
+            files[rel_name] = p.read_bytes().replace(b"\r\n", b"\n")
 
     license_file = mod_dir / "LICENSE"
     if license_file.is_file():
