@@ -1,0 +1,46 @@
+name: Release Horizon Native Mod
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run unit tests
+        run: cargo test --verbose
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Package .hnmod bundle
+        run: python package.py --out dist
+
+      - name: Calculate SHA-256
+        id: hash
+        run: |
+          sha=$(sha256sum dist/*.hnmod | awk '{print $1}')
+          echo "SHA256: $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.hnmod
+          generate_release_notes: true
+          draft: false
+          prerelease: false
