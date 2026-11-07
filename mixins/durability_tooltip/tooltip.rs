@@ -20,6 +20,7 @@ fn durability_tooltip_apply(
     let raw_label = game.translate("item.durability", "Прочность: %s / %s");
     let label = m::extract_durability_label(&raw_label);
     let formatted = m::format_durability_line(label, durability);
+    let color = m::durability_color(durability.percent);
 
     // Check if an existing line already contains durability information
     let existing_idx = lines
@@ -29,7 +30,7 @@ fn durability_tooltip_apply(
     if let Some(idx) = existing_idx {
         let plain = lines[idx].0.plain();
         if !plain.contains('%') {
-            lines[idx] = (Text::legacy(&formatted), u32::MAX);
+            lines[idx] = (Text::legacy(&formatted), color);
         }
     } else {
         // Insert before technical debug tail lines (item ID or component count) if present
@@ -43,6 +44,6 @@ fn durability_tooltip_apply(
             })
             .unwrap_or(lines.len());
 
-        lines.insert(insert_pos, (Text::legacy(&formatted), u32::MAX));
+        lines.insert(insert_pos, (Text::legacy(&formatted), color));
     }
 }

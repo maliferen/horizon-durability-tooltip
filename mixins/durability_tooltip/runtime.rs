@@ -3,7 +3,7 @@
 
 pub const ID: &str = "durability_tooltip";
 pub const NAME: &str = "Durability Tooltip";
-pub const VERSION: &str = "0.1.0";
+pub const VERSION: &str = "0.2.0";
 pub const DESCRIPTION: &str = "Displays item durability and health percentage directly in standard item tooltips.";
 
 /// Durability calculation results.
@@ -58,6 +58,26 @@ pub fn format_durability_line(label: &str, info: DurabilityInfo) -> String {
         label.trim()
     };
     format!("{clean_label}: {} / {} ({}%)", info.remaining, info.max, info.percent)
+}
+
+/// Standard HUD color codes matching Horizon's `rgba(r, g, b, a)` format:
+/// `(a << 24) | (b << 16) | (g << 8) | r`.
+pub const COLOR_GREEN: u32 = 0xFF55_FF55;   // rgba(85, 255, 85, 255)
+pub const COLOR_YELLOW: u32 = 0xFF55_FFFF;  // rgba(255, 255, 85, 255)
+pub const COLOR_RED: u32 = 0xFF55_55FF;     // rgba(255, 85, 85, 255)
+
+/// Returns the dynamic indicator color based on durability percentage:
+/// - Green (>= 70%): Pristine condition
+/// - Yellow (>= 30% and < 70%): Damaged
+/// - Red (< 30%): Critically damaged
+pub fn durability_color(percent: u32) -> u32 {
+    if percent >= 70 {
+        COLOR_GREEN
+    } else if percent >= 30 {
+        COLOR_YELLOW
+    } else {
+        COLOR_RED
+    }
 }
 
 /// Checks whether a given plain text line is already a durability line.
@@ -214,5 +234,22 @@ mod tests {
         assert!(!read_enabled(Some("false".into())));
         assert_eq!(enabled_label(true), "Durability Tooltip: ON");
         assert_eq!(enabled_label(false), "Durability Tooltip: OFF");
+    }
+
+    #[test]
+    fn test_durability_color() {
+        // Green: >= 70%
+        assert_eq!(durability_color(100), COLOR_GREEN);
+        assert_eq!(durability_color(70), COLOR_GREEN);
+
+        // Yellow: 30..=69%
+        assert_eq!(durability_color(69), COLOR_YELLOW);
+        assert_eq!(durability_color(50), COLOR_YELLOW);
+        assert_eq!(durability_color(30), COLOR_YELLOW);
+
+        // Red: < 30%
+        assert_eq!(durability_color(29), COLOR_RED);
+        assert_eq!(durability_color(1), COLOR_RED);
+        assert_eq!(durability_color(0), COLOR_RED);
     }
 }

@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Game: Minecraft 26.3](https://img.shields.io/badge/Minecraft-26.3-green.svg)](https://playhorizon.dev)
 [![Engine: Horizon Nightly](https://img.shields.io/badge/Horizon-nightly--2ebf00a-orange.svg)](https://github.com/horizon-rust/horizon)
-[![Format: .hnmod](https://img.shields.io/badge/Format-.hnmod%20v0.1.0-purple.svg)](https://playhorizon.dev/docs/mod-manifest)
+[![Format: .hnmod](https://img.shields.io/badge/Format-.hnmod%20v0.2.0-purple.svg)](https://playhorizon.dev/docs/mod-manifest)
 
 A high-performance, native Rust mod for **Horizon Minecraft** (the open-source Minecraft Java Edition 26.3 engine rewrite).
 
@@ -13,7 +13,11 @@ A high-performance, native Rust mod for **Horizon Minecraft** (the open-source M
 
 ## ✨ Features
 
-- **Accurate Numeric Durability:** Displays `remaining / max (percent%)`, e.g. `1561 / 1561 (100%)`, rendered in clean text matching vanilla Minecraft tooltips.
+- **Accurate Numeric Durability:** Displays `remaining / max (percent%)`, e.g. `1561 / 1561 (100%)`.
+- **Dynamic Color Indicators:**
+  - 🟢 **Green** ($\ge 70\%$) — Pristine condition
+  - 🟡 **Yellow** ($\ge 30\%$ and $< 70\%$) — Moderately damaged
+  - 🔴 **Red** ($< 30\%$) — Critically damaged
 - **Universal Internationalization (120+ Languages):**
   - Dynamically extracts localized labels via Minecraft's built-in `item.durability` translation key.
   - Full support for European languages (English `Durability`, Russian `Прочность`, German `Haltbarkeit`, Spanish `Durabilidad`, French `Durabilité`, etc.).
@@ -110,15 +114,15 @@ Run the standalone packaging script:
 python package.py --out ./dist
 ```
 This produces a byte-for-byte deterministic package:
-- **File:** `dist/durability_tooltip-0.1.0.hnmod`
-- **Size:** `5,974 bytes`
-- **SHA-256:** `42fc8e0a08e52af7331e8973e77accb9965f361fa533f704a397a5490917c5eb`
+- **File:** `dist/durability_tooltip-0.2.0.hnmod`
+- **Size:** `6,359 bytes`
+- **SHA-256:** `fb29276ad1ddb2bf621fe0310c891687f8b1d6faaa2f09d773b72f3aecd6e5e0`
 
 ---
 
 ## 🚀 Installation
 
-1. Copy `durability_tooltip-0.1.0.hnmod` into your Horizon instance's native mods directory:
+1. Copy `durability_tooltip-0.2.0.hnmod` into your Horizon instance's native mods directory:
    ```text
    %APPDATA%\horizon\instances\<instance_name>\horizon-native-mods\
    ```
