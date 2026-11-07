@@ -1,0 +1,11 @@
+[package]
+name = "horizon-mod-durability-tooltip"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+description = "Durability Tooltip for Horizon Minecraft: displays numeric durability values directly in item tooltips."
+
+[lib]
+path = "mixins/durability_tooltip/runtime.rs"
+

@@ -1,0 +1,19 @@
+# Rust & Cargo build artifacts
+/target/
+**/*.rs.bk
+
+# Packaged mod artifacts
+*.hnmod
+build/
+dist/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor & IDE configs
+.idea/
+.vscode/
+*.swp
+*.swo
