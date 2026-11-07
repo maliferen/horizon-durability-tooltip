@@ -112,7 +112,7 @@ python package.py --out ./dist
 This produces a byte-for-byte deterministic package:
 - **File:** `dist/durability_tooltip-0.1.0.hnmod`
 - **Size:** `5,974 bytes`
-- **SHA-256:** `ada8f3ca9266e378b5c9ce5e86cd8d7ad0ea9bd4beadb918953662c4f277b548`
+- **SHA-256:** `42fc8e0a08e52af7331e8973e77accb9965f361fa533f704a397a5490917c5eb`
 
 ---
 

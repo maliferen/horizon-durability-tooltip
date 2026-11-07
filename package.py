@@ -75,6 +75,7 @@ def package(mod_dir: Path, output_dir: Path) -> Path:
             info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o100644 << 16
+            info.create_system = 3
             archive.writestr(info, content)
 
     sha256 = hashlib.sha256(out_file.read_bytes()).hexdigest()
