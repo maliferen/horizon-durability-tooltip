@@ -65,7 +65,9 @@ def package(mod_dir: Path, output_dir: Path) -> Path:
 
     license_file = mod_dir / "LICENSE"
     if license_file.is_file():
-        files.setdefault(f"mixins/{mod_id}/LICENSE", license_file.read_bytes())
+        files.setdefault(
+            f"mixins/{mod_id}/LICENSE", license_file.read_bytes().replace(b"\r\n", b"\n")
+        )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     out_file = output_dir / f"{mod_id}-{version}.hnmod"
