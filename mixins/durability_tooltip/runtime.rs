@@ -3,7 +3,7 @@
 
 pub const ID: &str = "durability_tooltip";
 pub const NAME: &str = "Durability Tooltip";
-pub const VERSION: &str = "0.2.0";
+pub const VERSION: &str = "0.2.1";
 pub const DESCRIPTION: &str =
     "Displays item durability and health percentage directly in standard item tooltips.";
 
@@ -242,7 +242,7 @@ mod tests {
         let info = durability_info(1561, 0).unwrap();
         let enhanced = format_durability_line("Durability", info);
         for lore in [
-            "Charge (100%)",
+            "§dCharge (100%)",
             "Efficiency: 75%",
             "Battery: 1561 / 1561 (100%)",
             "Charge: 1561 / 1561",
@@ -281,6 +281,10 @@ mod tests {
         let info = durability_info(1561, 714).unwrap();
         let enhanced = format_durability_line("Прочность", info);
         assert!(is_durability_line("Прочность: 847 / 1561 (54%)", &enhanced));
+        assert!(is_durability_line(
+            "§eПрочность: 847 / 1561 (54%)",
+            &enhanced
+        ));
         assert!(!is_durability_line(
             "Прочность: 847 / 1561 (55%)",
             &enhanced

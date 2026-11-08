@@ -37,6 +37,19 @@ jobs:
           echo "SHA256: $sha"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
+      - name: Install Horizon build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev pkg-config
+
+      - name: Verify full native mod against Horizon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone --depth 1 https://github.com/horizon-rust/horizon-mods.git "$RUNNER_TEMP/horizon-mods"
+          mod="$RUNNER_TEMP/horizon-mods/native/durability-tooltip"
+          mkdir -p "$mod"
+          cp -r compatibility.json mixins LICENSE "$mod/"
+          python3 "$RUNNER_TEMP/horizon-mods/native/tools/native.py" check durability-tooltip --horizon latest
+
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2

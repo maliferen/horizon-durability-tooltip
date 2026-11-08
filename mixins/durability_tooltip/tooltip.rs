@@ -23,11 +23,11 @@ fn durability_tooltip_apply(
     let color = m::durability_color(durability.percent);
     let formatted_plain = Text::legacy(&formatted).plain();
 
-    // Prevent duplicate durability line if our enhanced line is already present
-    if lines
-        .iter()
-        .any(|(t, _)| m::is_durability_line(&t.resolve_legacy().plain(), &formatted_plain))
-    {
+    // Lore uses the default row color even when its text has custom styling.
+    if lines.iter().any(|(text, row_color)| {
+        *row_color == color
+            && m::is_durability_line(&text.resolve_legacy().plain(), &formatted_plain)
+    }) {
         return;
     }
 

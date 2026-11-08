@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Game: Minecraft 26.3](https://img.shields.io/badge/Minecraft-26.3-green.svg)](https://playhorizon.dev)
 [![Engine: Horizon Nightly](https://img.shields.io/badge/Horizon-nightly--2ebf00a-orange.svg)](https://github.com/horizon-rust/horizon)
-[![Format: .hnmod](https://img.shields.io/badge/Format-.hnmod%20v0.2.0-purple.svg)](https://playhorizon.dev/docs/mod-manifest)
+[![Format: .hnmod](https://img.shields.io/badge/Format-.hnmod%20v0.2.1-purple.svg)](https://playhorizon.dev/docs/mod-manifest)
 
 A high-performance, native Rust mod for **Horizon Minecraft** (the open-source Minecraft Java Edition 26.3 engine rewrite).
 
@@ -50,7 +50,7 @@ durability-tooltip/
 └── mixins/
     └── durability_tooltip/
         ├── horizon-mixin.toml      # Mixin bundle manifest (hook points & bindings)
-        ├── runtime.rs              # Core durability math, formatting logic & 10 unit tests
+        ├── runtime.rs              # Core durability math, formatting logic & unit tests
         ├── tooltip.rs              # Hook helper for Game::native_tooltip
         ├── list.rs                 # Mod list registration (Options > Mods)
         ├── settings.rs             # In-game settings button rendering
@@ -93,19 +93,7 @@ cargo test
 ```
 Expected output:
 ```text
-running 10 tests
-test tests::test_enabled_toggle ... ok
-test tests::test_extract_label ... ok
-test tests::test_fully_intact_item ... ok
-test tests::test_item_without_durability ... ok
-test tests::test_no_duplicate_lines ... ok
-test tests::test_one_durability_remaining ... ok
-test tests::test_out_of_bounds_damage ... ok
-test tests::test_partially_damaged_item ... ok
-test tests::test_rounding_percentage ... ok
-test tests::test_zero_max_durability ... ok
-
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
 ### 2. Package Reproducible `.hnmod` Bundle
@@ -114,15 +102,15 @@ Run the standalone packaging script:
 python package.py --out ./dist
 ```
 This produces a byte-for-byte deterministic package:
-- **File:** `dist/durability_tooltip-0.2.0.hnmod`
-- **Size:** `6,913 bytes`
-- **SHA-256:** `6eed59c794a51941a2ad9e35e4a38d9149e5bfe69426176b81ae610d1c9c2bd1`
+- **File:** `dist/durability_tooltip-0.2.1.hnmod`
+- **Size:** `6,951 bytes`
+- **SHA-256:** `b5b3fda981b6128024f0395e67ff220b865ec37918d8f13123c014acd15b60ac`
 
 ---
 
 ## 🚀 Installation
 
-1. Copy `durability_tooltip-0.2.0.hnmod` into your Horizon instance's native mods directory:
+1. Copy `durability_tooltip-0.2.1.hnmod` into your Horizon instance's native mods directory:
    ```text
    %APPDATA%\horizon\instances\<instance_name>\horizon-native-mods\
    ```
