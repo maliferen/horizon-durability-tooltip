@@ -9,4 +9,3 @@ fn durability_tooltip_settings(
         buttons.push(m::enabled_label(enabled));
     }
 }
-

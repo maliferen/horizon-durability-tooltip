@@ -21,29 +21,52 @@ fn durability_tooltip_apply(
     let label = m::extract_durability_label(&raw_label);
     let formatted = m::format_durability_line(label, durability);
     let color = m::durability_color(durability.percent);
+    let formatted_plain = Text::legacy(&formatted).plain();
 
-    // Check if an existing line already contains durability information
-    let existing_idx = lines
+    // Prevent duplicate durability line if our enhanced line is already present
+    if lines
         .iter()
-        .position(|(t, _)| m::is_durability_line(&t.plain(), durability));
-
-    if let Some(idx) = existing_idx {
-        let plain = lines[idx].0.plain();
-        if !plain.contains('%') {
-            lines[idx] = (Text::legacy(&formatted), color);
-        }
-    } else {
-        // Insert before technical debug tail lines (item ID or component count) if present
-        let insert_pos = lines
-            .iter()
-            .rposition(|(t, _)| {
-                let p = t.plain();
-                p.starts_with("minecraft:")
-                    || p.ends_with(" component(s)")
-                    || p.ends_with(" компонент(ов)")
-            })
-            .unwrap_or(lines.len());
-
-        lines.insert(insert_pos, (Text::legacy(&formatted), color));
+        .any(|(t, _)| m::is_durability_line(&t.resolve_legacy().plain(), &formatted_plain))
+    {
+        return;
     }
+
+    // Horizon puts its advanced durability line immediately before the item ID.
+    // Restrict replacement to that slot so even identical-looking lore stays intact.
+    if game.settings.file.bool("advancedItemTooltips")
+        && stack.damage > 0
+        && horizon_client::item_tooltip::TooltipDisplay::for_stack(stack).shows("minecraft:damage")
+        && let Some(idx) = lines
+            .iter()
+            .rposition(|(text, color)| {
+                *color == horizon_client::hud::rgba(85, 85, 85, 255)
+                    && text.plain() == stack.item.as_ref()
+            })
+            .and_then(|id| id.checked_sub(1))
+    {
+        let vanilla = Text::translate(
+            "item.durability",
+            &[
+                Text::literal(durability.remaining.to_string()),
+                Text::literal(durability.max.to_string()),
+            ],
+        );
+        let plain = lines[idx].0.resolve_legacy().plain();
+        if m::is_durability_line(&plain, &vanilla.resolve_legacy().plain()) {
+            lines[idx] = (Text::legacy(&formatted), color);
+            return;
+        }
+    }
+
+    // Insert before technical debug tail lines (item ID or component count) if present.
+    let insert_pos = lines
+        .iter()
+        .rposition(|(t, _)| {
+            let p = t.plain();
+            p.starts_with("minecraft:")
+                || p.ends_with(" component(s)")
+                || p.ends_with(" компонент(ов)")
+        })
+        .unwrap_or(lines.len());
+    lines.insert(insert_pos, (Text::legacy(&formatted), color));
 }

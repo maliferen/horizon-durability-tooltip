@@ -7,4 +7,3 @@ fn durability_tooltip_list(mods: &mut Vec<crate::game::native_hooks::NativeMod>)
         keys: Vec::new(),
     });
 }
-

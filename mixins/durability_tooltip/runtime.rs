@@ -4,7 +4,8 @@
 pub const ID: &str = "durability_tooltip";
 pub const NAME: &str = "Durability Tooltip";
 pub const VERSION: &str = "0.2.0";
-pub const DESCRIPTION: &str = "Displays item durability and health percentage directly in standard item tooltips.";
+pub const DESCRIPTION: &str =
+    "Displays item durability and health percentage directly in standard item tooltips.";
 
 /// Durability calculation results.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -37,7 +38,7 @@ pub fn durability_info(max_durability: u32, current_damage: u32) -> Option<Durab
 /// E.g. `"Прочность: %s / %s"` -> `"Прочность"`, or `"Durability: %s / %s"` -> `"Durability"`.
 pub fn extract_durability_label(translated: &str) -> &str {
     let trimmed = translated.trim();
-    if let Some(pos) = trimmed.find(|c| c == ':' || c == '：' || c == '\u{ff1a}') {
+    if let Some(pos) = trimmed.find([':', '：']) {
         trimmed[..pos].trim()
     } else if let Some((prefix, _)) = trimmed.split_once("%s") {
         prefix.trim()
@@ -57,14 +58,17 @@ pub fn format_durability_line(label: &str, info: DurabilityInfo) -> String {
     } else {
         label.trim()
     };
-    format!("{clean_label}: {} / {} ({}%)", info.remaining, info.max, info.percent)
+    format!(
+        "{clean_label}: {} / {} ({}%)",
+        info.remaining, info.max, info.percent
+    )
 }
 
 /// Standard HUD color codes matching Horizon's `rgba(r, g, b, a)` format:
 /// `(a << 24) | (b << 16) | (g << 8) | r`.
-pub const COLOR_GREEN: u32 = 0xFF55_FF55;   // rgba(85, 255, 85, 255)
-pub const COLOR_YELLOW: u32 = 0xFF55_FFFF;  // rgba(255, 255, 85, 255)
-pub const COLOR_RED: u32 = 0xFF55_55FF;     // rgba(255, 85, 85, 255)
+pub const COLOR_GREEN: u32 = 0xFF55_FF55; // rgba(85, 255, 85, 255)
+pub const COLOR_YELLOW: u32 = 0xFF55_FFFF; // rgba(255, 255, 85, 255)
+pub const COLOR_RED: u32 = 0xFF55_55FF; // rgba(255, 85, 85, 255)
 
 /// Returns the dynamic indicator color based on durability percentage:
 /// - Green (>= 70%): Pristine condition
@@ -80,14 +84,26 @@ pub fn durability_color(percent: u32) -> u32 {
     }
 }
 
-/// Checks whether a given plain text line is already a durability line.
-pub fn is_durability_line(line_text: &str, info: DurabilityInfo) -> bool {
-    let text = line_text.trim();
-    let max_pattern = format!("/ {}", info.max);
-    let percent_pattern = format!("({}%)", info.percent);
-    let general_slash = text.contains(" / ") && (text.contains("Durability") || text.contains("Прочность") || text.contains(&max_pattern));
+fn strip_section_codes(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut chars = s.chars();
+    while let Some(c) = chars.next() {
+        if c == '§' {
+            chars.next();
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
 
-    text.contains(&percent_pattern) || general_slash
+/// Matches the entire localized line for this stack after the game resolves text styles.
+pub fn is_durability_line(line_text: &str, expected: &str) -> bool {
+    let stripped_line = strip_section_codes(line_text);
+    let stripped_expected = strip_section_codes(expected);
+    stripped_line
+        .split_whitespace()
+        .eq(stripped_expected.split_whitespace())
 }
 
 pub fn read_enabled(stored: Option<String>) -> bool {
@@ -200,31 +216,75 @@ mod tests {
     #[test]
     fn test_extract_label() {
         assert_eq!(extract_durability_label("Прочность: %s / %s"), "Прочность");
-        assert_eq!(extract_durability_label("Durability: %s / %s"), "Durability");
-        assert_eq!(extract_durability_label("Haltbarkeit: %s / %s"), "Haltbarkeit");
-        assert_eq!(extract_durability_label("Durabilité : %s / %s"), "Durabilité");
+        assert_eq!(
+            extract_durability_label("Durability: %s / %s"),
+            "Durability"
+        );
+        assert_eq!(
+            extract_durability_label("Haltbarkeit: %s / %s"),
+            "Haltbarkeit"
+        );
+        assert_eq!(
+            extract_durability_label("Durabilité : %s / %s"),
+            "Durabilité"
+        );
         assert_eq!(extract_durability_label("耐久度：%s / %s"), "耐久度");
         assert_eq!(extract_durability_label("耐久度: %s / %s"), "耐久度");
         assert_eq!(extract_durability_label(""), "Durability");
-        assert_eq!(extract_durability_label("CustomDurability"), "CustomDurability");
+        assert_eq!(
+            extract_durability_label("CustomDurability"),
+            "CustomDurability"
+        );
     }
 
     #[test]
-    fn test_no_duplicate_lines() {
+    fn test_percentage_lore_is_not_durability() {
+        let info = durability_info(1561, 0).unwrap();
+        let enhanced = format_durability_line("Durability", info);
+        for lore in [
+            "Charge (100%)",
+            "Efficiency: 75%",
+            "Battery: 1561 / 1561 (100%)",
+            "Charge: 1561 / 1561",
+            "Durability: 1561 / 1561 (100%) bonus",
+        ] {
+            assert!(
+                !is_durability_line(lore, "Durability: 1561 / 1561"),
+                "{lore}"
+            );
+            assert!(!is_durability_line(lore, &enhanced), "{lore}");
+        }
+    }
+
+    #[test]
+    fn test_matches_entire_localized_vanilla_line() {
+        for line in [
+            "Durability: 847 / 1561",
+            "Прочность: 847 / 1561",
+            "Durabilité : 847 / 1561",
+            "耐久度：847 / 1561",
+            "1561 中 847 耐久度",
+        ] {
+            assert!(is_durability_line(&line.replace(' ', "\u{a0}"), line));
+        }
+        let expected = "Durability: 847 / 1561";
+        assert!(!is_durability_line("Durability: 848 / 1561", expected));
+        assert!(!is_durability_line("Durability: 847 / 1560", expected));
+        assert!(!is_durability_line(
+            "Extra Durability: 847 / 1561",
+            expected
+        ));
+    }
+
+    #[test]
+    fn test_already_enhanced_durability_matches_with_correct_percentage() {
         let info = durability_info(1561, 714).unwrap();
-        let formatted = format_durability_line("Прочность", info);
-
-        // Test with our own line
-        assert!(is_durability_line(&formatted, info));
-
-        // Test with vanilla line "Durability: 847 / 1561"
-        assert!(is_durability_line("Durability: 847 / 1561", info));
-        assert!(is_durability_line("Прочность: 847 / 1561", info));
-
-        // Unrelated lines should not match
-        assert!(!is_durability_line("Алмазная кирка", info));
-        assert!(!is_durability_line("Эффективность V", info));
-        assert!(!is_durability_line("minecraft:diamond_pickaxe", info));
+        let enhanced = format_durability_line("Прочность", info);
+        assert!(is_durability_line("Прочность: 847 / 1561 (54%)", &enhanced));
+        assert!(!is_durability_line(
+            "Прочность: 847 / 1561 (55%)",
+            &enhanced
+        ));
     }
 
     #[test]
